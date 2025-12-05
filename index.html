@@ -152,6 +152,72 @@
       background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
       box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
     }
+    /* Tabel Horizontal */
+    .horizontal-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .horizontal-table th {
+      background: linear-gradient(90deg, #e0f2fe 0%, #f0f9ff 100%);
+      color: #1e40af;
+      font-weight: 600;
+      padding: 8px 6px;
+      border: 1px solid #dbeafe;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .horizontal-table td {
+      padding: 6px;
+      border: 1px solid #e5e7eb;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .horizontal-table tr:nth-child(even) {
+      background-color: #f9fafb;
+    }
+    .horizontal-table tr:hover {
+      background-color: #f0f9ff;
+    }
+    .status-H { color: #059669; font-weight: bold; }
+    .status-S { color: #d97706; font-weight: bold; }
+    .status-I { color: #2563eb; font-weight: bold; }
+    .status-A { color: #dc2626; font-weight: bold; }
+    .status-dash { color: #9ca3af; }
+    .summary-cell {
+      background-color: #fef3c7;
+      font-weight: 600;
+    }
+    .percentage-cell {
+      background-color: #dcfce7;
+      font-weight: 600;
+      color: #059669;
+    }
+    .sticky-header {
+      position: sticky;
+      left: 0;
+      background: white;
+      z-index: 10;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+    .sticky-name {
+      position: sticky;
+      left: 0;
+      background: inherit;
+      z-index: 9;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+    .scrollable-table {
+      overflow-x: auto;
+      max-width: 100%;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: white;
+    }
+    .badge-H { background: #d1fae5; color: #065f46; }
+    .badge-S { background: #fef3c7; color: #92400e; }
+    .badge-I { background: #dbeafe; color: #1e40af; }
+    .badge-A { background: #fee2e2; color: #991b1b; }
   </style>
   <style>@view-transition { navigation: auto; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
@@ -170,7 +236,7 @@
    <aside id="sidebar" class="w-64 bg-white shadow-lg flex flex-col" style="height: 100%;">
     <div class="p-6 border-b border-gray-200">
      <h1 id="appTitle" class="text-2xl font-bold text-gray-800">Manajemen Ekskul</h1>
-     <p id="schoolName" class="text-sm text-gray-500 mt-1">SMA  TAKHASSUS AL QURAN WONOSOBO</p>
+     <p id="schoolName" class="text-sm text-gray-500 mt-1">SMA TAKHASSUS AL QUR'AN</p>
     </div>
     <nav class="flex-1 p-4 overflow-y-auto">
      <a href="#" class="menu-item active flex items-center px-4 py-3 rounded-lg mb-2" data-page="dashboard">
@@ -200,6 +266,11 @@
      <a href="#" class="menu-item flex items-center px-4 py-3 rounded-lg mb-2" data-page="laporan">
       <span class="mr-3">📄</span>
       <span>Laporan</span>
+     </a>
+     <!-- TAMBAHAN: Menu Laporan Rekap Horizontal -->
+     <a href="#" class="menu-item flex items-center px-4 py-3 rounded-lg mb-2" data-page="laporan-rekap">
+      <span class="mr-3">📋</span>
+      <span>Rekap Kehadiran</span>
      </a>
     </nav>
     <div class="p-4 border-t border-gray-200">
@@ -647,6 +718,86 @@
        </div>
       </div>
      </div>
+     
+     <!-- HALAMAN BARU: Laporan Rekap Horizontal -->
+     <div id="page-laporan-rekap" class="page-content hidden">
+      <div class="mb-6">
+       <h2 class="text-3xl font-bold text-gray-800">📋 Rekap Kehadiran Horizontal</h2>
+       <p class="text-gray-600 mt-1">Tabel rekap kehadiran dengan format horizontal per tanggal</p>
+      </div>
+      
+      <!-- Filter Rekap -->
+      <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+       <h3 class="text-xl font-bold text-gray-800 mb-4">Filter Berdasarkan Ekstrakurikuler</h3>
+       
+       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div>
+         <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Ekstrakurikuler</label>
+         <select id="filter-rekap-ekstra" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+          <option value="">-- Semua Ekstra --</option>
+         </select>
+        </div>
+        <div>
+         <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
+         <input type="date" id="filter-rekap-dari" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+         <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Akhir</label>
+         <input type="date" id="filter-rekap-sampai" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+        </div>
+       </div>
+       
+       <div class="flex gap-3">
+        <button onclick="generateRekapHorizontal()" class="btn-primary text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2">
+         📊 Generate Laporan
+        </button>
+        <button onclick="exportRekapHorizontal()" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 flex items-center gap-2">
+         📥 Export Excel
+        </button>
+       </div>
+      </div>
+      
+      <!-- Info Statistik -->
+      <div id="rekap-info" class="hidden mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h4 class="text-lg font-bold text-blue-800" id="rekap-title">Rekap Kehadiran</h4>
+          <p class="text-blue-600" id="rekap-subtitle">Periode: -</p>
+          <div class="flex flex-wrap gap-4 mt-2">
+            <span class="text-sm text-gray-700">📊 <span id="rekap-total-siswa">0</span> siswa</span>
+            <span class="text-sm text-gray-700">📝 <span id="rekap-total-absensi">0</span> data absensi</span>
+            <span class="text-sm text-gray-700">📅 <span id="rekap-total-hari">0</span> hari</span>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-green-600" id="rekap-hadir">0</div>
+            <div class="text-xs text-gray-600">Hadir (H)</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-yellow-600" id="rekap-sakit">0</div>
+            <div class="text-xs text-gray-600">Sakit (S)</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-blue-600" id="rekap-izin">0</div>
+            <div class="text-xs text-gray-600">Izin (I)</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-red-600" id="rekap-alpa">0</div>
+            <div class="text-xs text-gray-600">Alpa (A)</div>
+          </div>
+        </div>
+       </div>
+      </div>
+      
+      <!-- Tabel Horizontal -->
+      <div class="scrollable-table">
+        <div id="rekap-horizontal-container" class="p-4">
+          <p class="text-gray-500 text-center py-8">Pilih filter dan klik "Generate Laporan" untuk menampilkan data</p>
+        </div>
+      </div>
+     </div>
+     
     </div>
    </main>
   </div>
@@ -938,6 +1089,7 @@
     let currentRecordCount = 0;
     let filteredKehadiranData = [];
     let filteredJurnalData = [];
+    let rekapData = []; // Data untuk rekap horizontal
     let isLoading = false;
     let importEkstraQueue = [];
     let importAnggotaQueue = [];
@@ -969,6 +1121,7 @@
           updateRecentActivity();
           applyFilterKehadiran();
           applyFilterJurnal();
+          updateRekapFilter(); // Update filter untuk rekap
         } else {
           showToast('Gagal memuat data: ' + result.message);
         }
@@ -1152,6 +1305,242 @@
         overlay.classList.add('hidden');
       }
       isLoading = show;
+    }
+
+    // === FUNGSI UNTUK REKAP HORIZONTAL ===
+    
+    function updateRekapFilter() {
+      const ekstra = allData.filter(d => d.type === 'ekstra').sort((a, b) => a.nama.localeCompare(b.nama));
+      const select = document.getElementById('filter-rekap-ekstra');
+      
+      const ekstraOptions = '<option value="">-- Semua Ekstra --</option>' + 
+        ekstra.map(e => `<option value="${e.nama}">${e.nama}</option>`).join('');
+      
+      select.innerHTML = ekstraOptions;
+    }
+    
+    function generateRekapHorizontal() {
+      const selectedEkstra = document.getElementById('filter-rekap-ekstra').value;
+      const dariTanggal = document.getElementById('filter-rekap-dari').value;
+      const sampaiTanggal = document.getElementById('filter-rekap-sampai').value;
+      
+      // Filter data absensi
+      let absensiData = allData.filter(d => d.type === 'absensi');
+      
+      if (selectedEkstra) {
+        absensiData = absensiData.filter(d => d.ekstra === selectedEkstra);
+      }
+      
+      if (dariTanggal) {
+        absensiData = absensiData.filter(d => d.tanggal >= dariTanggal);
+      }
+      
+      if (sampaiTanggal) {
+        absensiData = absensiData.filter(d => d.tanggal <= sampaiTanggal);
+      }
+      
+      if (absensiData.length === 0) {
+        document.getElementById('rekap-horizontal-container').innerHTML = 
+          '<p class="text-gray-500 text-center py-8">Tidak ada data absensi untuk filter yang dipilih</p>';
+        document.getElementById('rekap-info').classList.add('hidden');
+        return;
+      }
+      
+      // Ambil data anggota berdasarkan ekstra yang dipilih
+      let anggotaData = allData.filter(d => d.type === 'anggota');
+      if (selectedEkstra) {
+        anggotaData = anggotaData.filter(d => d.ekstra === selectedEkstra);
+      }
+      
+      // Urutkan anggota berdasarkan kelas dan nama
+      anggotaData.sort((a, b) => {
+        const kelasCompare = a.kelas.localeCompare(b.kelas);
+        if (kelasCompare !== 0) return kelasCompare;
+        return a.nama.localeCompare(b.nama);
+      });
+      
+      // Ambil semua tanggal unik dan urutkan
+      const allDates = [...new Set(absensiData.map(d => d.tanggal))];
+      allDates.sort();
+      
+      // Siapkan data rekap per siswa
+      rekapData = [];
+      
+      anggotaData.forEach(anggota => {
+        const absensiSiswa = absensiData.filter(a => a.nama === anggota.nama && a.kelas === anggota.kelas);
+        
+        // Hitung statistik
+        const totalH = absensiSiswa.filter(a => a.status === 'H').length;
+        const totalS = absensiSiswa.filter(a => a.status === 'S').length;
+        const totalI = absensiSiswa.filter(a => a.status === 'I').length;
+        const totalA = absensiSiswa.filter(a => a.status === 'A').length;
+        const totalAbsen = totalH + totalS + totalI + totalA;
+        const persentase = totalAbsen > 0 ? Math.round((totalH / totalAbsen) * 100) : 0;
+        
+        // Buat mapping status per tanggal
+        const statusPerTanggal = {};
+        allDates.forEach(tanggal => {
+          const absensi = absensiSiswa.find(a => a.tanggal === tanggal);
+          statusPerTanggal[tanggal] = absensi ? absensi.status : '-';
+        });
+        
+        rekapData.push({
+          nama: anggota.nama,
+          kelas: anggota.kelas,
+          ekstra: anggota.ekstra,
+          statusPerTanggal: statusPerTanggal,
+          totalH,
+          totalS,
+          totalI,
+          totalA,
+          persentase
+        });
+      });
+      
+      // Render tabel
+      renderRekapHorizontalTable(allDates, rekapData, selectedEkstra, dariTanggal, sampaiTanggal);
+    }
+    
+    function renderRekapHorizontalTable(dates, data, ekstra, dari, sampai) {
+      const container = document.getElementById('rekap-horizontal-container');
+      
+      // Format tanggal untuk display (dd/mm)
+      const formatTanggal = (dateStr) => {
+        const date = new Date(dateStr);
+        return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+      };
+      
+      // Format tanggal lengkap untuk judul
+      const formatTanggalLengkap = (dateStr) => {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        return date.toLocaleDateString('id-ID', options);
+      };
+      
+      // Update info statistik
+      const totalSiswa = data.length;
+      const totalAbsensi = data.reduce((sum, item) => sum + item.totalH + item.totalS + item.totalI + item.totalA, 0);
+      const totalH = data.reduce((sum, item) => sum + item.totalH, 0);
+      const totalS = data.reduce((sum, item) => sum + item.totalS, 0);
+      const totalI = data.reduce((sum, item) => sum + item.totalI, 0);
+      const totalA = data.reduce((sum, item) => sum + item.totalA, 0);
+      
+      document.getElementById('rekap-title').textContent = `Rekap Kehadiran: ${ekstra || 'Semua Ekstra'}`;
+      document.getElementById('rekap-subtitle').textContent = 
+        `Periode: ${formatTanggalLengkap(dari) || 'Awal'} s/d ${formatTanggalLengkap(sampai) || 'Akhir'}`;
+      document.getElementById('rekap-total-siswa').textContent = totalSiswa;
+      document.getElementById('rekap-total-absensi').textContent = totalAbsensi;
+      document.getElementById('rekap-total-hari').textContent = dates.length;
+      document.getElementById('rekap-hadir').textContent = totalH;
+      document.getElementById('rekap-sakit').textContent = totalS;
+      document.getElementById('rekap-izin').textContent = totalI;
+      document.getElementById('rekap-alpa').textContent = totalA;
+      
+      document.getElementById('rekap-info').classList.remove('hidden');
+      
+      // Buat header tabel
+      let tableHTML = `
+        <table class="horizontal-table">
+          <thead>
+            <tr>
+              <th class="sticky-header" style="min-width: 150px;">NAMA</th>
+              <th class="sticky-header" style="min-width: 80px;">KELAS</th>
+      `;
+      
+      // Kolom tanggal
+      dates.forEach(date => {
+        tableHTML += `<th style="min-width: 50px;">${formatTanggal(date)}</th>`;
+      });
+      
+      // Kolom statistik
+      tableHTML += `
+              <th class="summary-cell">H</th>
+              <th class="summary-cell">S</th>
+              <th class="summary-cell">I</th>
+              <th class="summary-cell">A</th>
+              <th class="percentage-cell">%</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      
+      // Baris data per siswa
+      data.forEach(siswa => {
+        tableHTML += `
+          <tr>
+            <td class="sticky-name" style="text-align: left; padding-left: 10px;">${siswa.nama}</td>
+            <td class="sticky-name">${siswa.kelas}</td>
+        `;
+        
+        // Kolom status per tanggal
+        dates.forEach(date => {
+          const status = siswa.statusPerTanggal[date];
+          const statusClass = status === '-' ? 'status-dash' : `status-${status}`;
+          tableHTML += `<td class="${statusClass}">${status}</td>`;
+        });
+        
+        // Kolom statistik
+        tableHTML += `
+            <td class="summary-cell">${siswa.totalH}</td>
+            <td class="summary-cell">${siswa.totalS}</td>
+            <td class="summary-cell">${siswa.totalI}</td>
+            <td class="summary-cell">${siswa.totalA}</td>
+            <td class="percentage-cell">${siswa.persentase}%</td>
+          </tr>
+        `;
+      });
+      
+      tableHTML += `
+          </tbody>
+        </table>
+      `;
+      
+      container.innerHTML = tableHTML;
+    }
+    
+    function exportRekapHorizontal() {
+      if (rekapData.length === 0) {
+        showExportNotification('error', 'Tidak ada data untuk di-export', 'Generate laporan terlebih dahulu');
+        return;
+      }
+
+      try {
+        // Ambil tanggal unik dari rekapData
+        const dates = Object.keys(rekapData[0]?.statusPerTanggal || {}).sort();
+        
+        // Siapkan header
+        const headers = ['No', 'Nama', 'Kelas', 'Ekstrakurikuler', ...dates, 'Total H', 'Total S', 'Total I', 'Total A', '% Hadir'];
+        
+        // Siapkan data
+        const rows = rekapData.map((item, index) => {
+          const rowData = [
+            index + 1,
+            item.nama,
+            item.kelas,
+            item.ekstra,
+            ...dates.map(date => item.statusPerTanggal[date] || '-'),
+            item.totalH,
+            item.totalS,
+            item.totalI,
+            item.totalA,
+            `${item.persentase}%`
+          ];
+          return rowData;
+        });
+        
+        // Download file CSV
+        downloadCSV('rekap_kehadiran_horizontal', headers, rows);
+        
+        // Juga copy ke clipboard
+        copyToClipboardForExcel(headers, rows);
+        
+        showExportNotification('success', 'Export Berhasil!', 'Rekap kehadiran telah diexport ke Excel');
+        
+      } catch (error) {
+        console.error('Error export rekap:', error);
+        showExportNotification('error', 'Export Gagal!', error.message);
+      }
     }
 
     // === EXPORT TO EXCEL FUNCTIONS ===
@@ -1575,6 +1964,9 @@
         renderAbsensiTable();
       } else if (currentPage === 'jurnal') {
         renderJurnalList();
+      } else if (currentPage === 'laporan-rekap') {
+        // Inisialisasi halaman rekap jika sedang aktif
+        updateRekapFilter();
       }
       
       updateKelasDatalist();
@@ -2706,6 +3098,8 @@
       // Set default date to today
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('absensi-tanggal-klasikal').value = today;
+      document.getElementById('filter-rekap-dari').value = today;
+      document.getElementById('filter-rekap-sampai').value = today;
       
       // Event listener untuk search anggota
       const searchAnggota = document.getElementById('search-anggota');
@@ -2721,5 +3115,4 @@
   </script>
   <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a8f8dca80d2fe14',t:'MTc2NDg5NTg3NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
  </body>
-
 </html>
