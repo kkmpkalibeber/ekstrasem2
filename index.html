@@ -7,6 +7,7 @@
   <script src="/_sdk/element_sdk.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   <style>
     body {
       box-sizing: border-box;
@@ -218,6 +219,51 @@
     .badge-S { background: #fef3c7; color: #92400e; }
     .badge-I { background: #dbeafe; color: #1e40af; }
     .badge-A { background: #fee2e2; color: #991b1b; }
+    /* Untuk halaman rekap penilaian */
+    .excel-preview {
+      margin-top: 30px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .excel-preview-header {
+      background-color: #1e6c42;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .excel-preview-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+    }
+    .excel-preview-content {
+      padding: 20px;
+      background-color: #f8fff8;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      max-height: 300px;
+      overflow-y: auto;
+      border-top: 1px solid #eee;
+    }
+    .rekap-table-container {
+      max-height: 600px;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+    .kategori-sangat-baik {
+      background-color: #d5f4e6;
+      color: #27ae60;
+      font-weight: 600;
+      border-radius: 20px;
+      padding: 5px 12px;
+      display: inline-block;
+      font-size: 0.85rem;
+    }
   </style>
   <style>@view-transition { navigation: auto; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
@@ -271,6 +317,11 @@
      <a href="#" class="menu-item flex items-center px-4 py-3 rounded-lg mb-2" data-page="laporan-rekap">
       <span class="mr-3">📋</span>
       <span>Rekap Kehadiran</span>
+     </a>
+     <!-- TAMBAHAN: Menu Rekap Penilaian -->
+     <a href="#" class="menu-item flex items-center px-4 py-3 rounded-lg mb-2" data-page="rekap-penilaian">
+      <span class="mr-3">📊</span>
+      <span>Rekap Penilaian</span>
      </a>
     </nav>
     <div class="p-4 border-t border-gray-200">
@@ -798,6 +849,113 @@
       </div>
      </div>
      
+     <!-- HALAMAN BARU: Rekap Penilaian -->
+     <div id="page-rekap-penilaian" class="page-content hidden">
+      <div class="mb-6">
+       <h2 class="text-3xl font-bold text-gray-800">📊 Rekap Penilaian Ekstrakurikuler</h2>
+       <p class="text-gray-600 mt-1">Rekap dan ekspor data penilaian ekstrakurikuler</p>
+      </div>
+      
+      <!-- Filter Section -->
+      <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+       <h3 class="text-xl font-bold text-gray-800 mb-4">🔍 Filter Data</h3>
+       
+       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        <div>
+         <label class="block text-sm font-medium text-gray-700 mb-2">Ekstra Kurikuler</label>
+         <select id="rekap-ekstra-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+          <option value="semua">Semua Ekstra</option>
+         </select>
+        </div>
+        <div>
+         <label class="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
+         <select id="rekap-kelas-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+          <option value="semua">Semua Kelas</option>
+          <option value="X-A">X-A</option>
+          <option value="X-B">X-B</option>
+          <option value="X-C">X-C</option>
+          <option value="XI-A">XI-A</option>
+          <option value="XI-B">XI-B</option>
+          <option value="XII-A">XII-A</option>
+          <option value="XII-B">XII-B</option>
+         </select>
+        </div>
+        <div>
+         <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Penilaian</label>
+         <select id="rekap-kategori-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+          <option value="semua">Semua Kategori</option>
+          <option value="SANGAT BAIK">SANGAT BAIK</option>
+          <option value="BAIK">BAIK</option>
+          <option value="CUKUP">CUKUP</option>
+          <option value="PERLU BIMBINGAN">PERLU BIMBINGAN</option>
+         </select>
+        </div>
+        <div>
+         <label class="block text-sm font-medium text-gray-700 mb-2">Cari Nama</label>
+         <input type="text" id="rekap-nama-filter" placeholder="Masukkan nama siswa..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+        </div>
+       </div>
+       
+       <div class="flex justify-between items-center">
+        <div class="text-gray-700 font-medium">
+          Hasil Rekap: <span id="rekap-result-count" class="bg-blue-600 text-white px-2 py-1 rounded-full text-sm">0 data</span>
+        </div>
+        <button onclick="exportRekapPenilaian()" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 flex items-center gap-2">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+         </svg>
+         📥 Ekspor ke Excel
+        </button>
+       </div>
+      </div>
+      
+      <!-- Tabel Hasil -->
+      <div class="bg-white rounded-xl shadow-md overflow-hidden">
+       <div class="rekap-table-container">
+        <table class="w-full">
+         <thead class="bg-gradient-to-r from-blue-50 to-green-50 sticky top-0">
+          <tr>
+           <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Ekstra</th>
+           <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Kelas</th>
+           <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Nama</th>
+           <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Kategori Penilaian</th>
+           <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Deskripsi</th>
+           <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">Aksi</th>
+          </tr>
+         </thead>
+         <tbody id="rekap-penilaian-table" class="divide-y divide-gray-200">
+          <tr>
+           <td colspan="6" class="px-6 py-8 text-center text-gray-500">Belum ada data penilaian</td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+      </div>
+      
+      <!-- Preview Excel -->
+      <div id="excel-preview" class="excel-preview hidden">
+       <div class="excel-preview-header">
+        <div class="excel-preview-title">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+         </svg>
+         Preview Data Excel
+        </div>
+        <div>
+         <button onclick="closeExcelPreview()" class="bg-white text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          Tutup
+         </button>
+        </div>
+       </div>
+       <div class="excel-preview-content" id="excel-preview-content">
+        <!-- Preview data Excel akan ditampilkan di sini -->
+       </div>
+      </div>
+     </div>
+     
     </div>
    </main>
   </div>
@@ -1090,6 +1248,7 @@
     let filteredKehadiranData = [];
     let filteredJurnalData = [];
     let rekapData = []; // Data untuk rekap horizontal
+    let rekapPenilaianData = []; // Data untuk rekap penilaian
     let isLoading = false;
     let importEkstraQueue = [];
     let importAnggotaQueue = [];
@@ -1122,6 +1281,8 @@
           applyFilterKehadiran();
           applyFilterJurnal();
           updateRekapFilter(); // Update filter untuk rekap
+          updateRekapPenilaianFilter(); // Update filter untuk rekap penilaian
+          loadRekapPenilaianData(); // Load data rekap penilaian
         } else {
           showToast('Gagal memuat data: ' + result.message);
         }
@@ -1305,6 +1466,185 @@
         overlay.classList.add('hidden');
       }
       isLoading = show;
+    }
+
+    // === FUNGSI UNTUK REKAP PENILAIAN ===
+    
+    function updateRekapPenilaianFilter() {
+      const ekstra = allData.filter(d => d.type === 'ekstra').sort((a, b) => a.nama.localeCompare(b.nama));
+      const select = document.getElementById('rekap-ekstra-filter');
+      
+      const ekstraOptions = '<option value="semua">Semua Ekstra</option>' + 
+        ekstra.map(e => `<option value="${e.nama}">${e.nama}</option>`).join('');
+      
+      select.innerHTML = ekstraOptions;
+    }
+    
+    function loadRekapPenilaianData() {
+      const ekstraFilter = document.getElementById('rekap-ekstra-filter').value;
+      const kelasFilter = document.getElementById('rekap-kelas-filter').value;
+      const kategoriFilter = document.getElementById('rekap-kategori-filter').value;
+      const namaFilter = document.getElementById('rekap-nama-filter').value.toLowerCase();
+      
+      // Filter data penilaian
+      let penilaianData = allData.filter(d => d.type === 'penilaian');
+      
+      if (ekstraFilter !== 'semua') {
+        penilaianData = penilaianData.filter(d => d.ekstra === ekstraFilter);
+      }
+      
+      if (kelasFilter !== 'semua') {
+        penilaianData = penilaianData.filter(d => d.kelas === kelasFilter);
+      }
+      
+      if (kategoriFilter !== 'semua') {
+        penilaianData = penilaianData.filter(d => d.nilai === kategoriFilter);
+      }
+      
+      if (namaFilter) {
+        penilaianData = penilaianData.filter(d => d.nama.toLowerCase().includes(namaFilter));
+      }
+      
+      rekapPenilaianData = penilaianData;
+      renderRekapPenilaianTable();
+    }
+    
+    function renderRekapPenilaianTable() {
+      const tbody = document.getElementById('rekap-penilaian-table');
+      
+      if (rekapPenilaianData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Tidak ada data yang sesuai dengan filter</td></tr>';
+        document.getElementById('rekap-result-count').textContent = '0 data';
+        return;
+      }
+      
+      tbody.innerHTML = rekapPenilaianData.map(item => {
+        // Tentukan kelas CSS berdasarkan kategori penilaian
+        let kategoriClass = 'kategori-sangat-baik';
+        if (item.nilai === 'BAIK') kategoriClass = 'bg-blue-100 text-blue-800';
+        else if (item.nilai === 'CUKUP') kategoriClass = 'bg-yellow-100 text-yellow-800';
+        else if (item.nilai === 'PERLU BIMBINGAN') kategoriClass = 'bg-red-100 text-red-800';
+        
+        return `
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 text-sm text-gray-800">${item.ekstra || '-'}</td>
+            <td class="px-6 py-4 text-sm text-gray-800">${item.kelas || '-'}</td>
+            <td class="px-6 py-4 text-sm text-gray-800">${item.nama || '-'}</td>
+            <td class="px-6 py-4">
+              <span class="${kategoriClass} inline-flex items-center px-3 py-1 rounded-full text-xs font-medium">
+                ${item.nilai || '-'}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-600">${item.catatan || item.deskripsi || '-'}</td>
+            <td class="px-6 py-4 text-center">
+              <button onclick='editPenilaianRekap(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="text-blue-600 hover:text-blue-800 font-medium text-sm">Edit</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      
+      document.getElementById('rekap-result-count').textContent = `${rekapPenilaianData.length} data`;
+    }
+    
+    function editPenilaianRekap(data) {
+      document.getElementById('modal-penilaian-title').textContent = 'Edit Penilaian';
+      document.getElementById('penilaian-id').value = data.id;
+      
+      // Set nilai ekstra dan trigger change untuk populate nama
+      document.getElementById('penilaian-ekstra').value = data.ekstra;
+      document.getElementById('penilaian-ekstra').dispatchEvent(new Event('change'));
+      
+      setTimeout(() => {
+        // Set nilai nama setelah dropdown terisi
+        document.getElementById('penilaian-nama').value = data.nama;
+        
+        // Kunci field ekstra dan nama (tidak bisa diedit tapi tetap tampil)
+        document.getElementById('penilaian-ekstra').disabled = true;
+        document.getElementById('penilaian-nama').disabled = true;
+        
+        // Ubah style jadi abu-abu untuk visual kunci
+        document.getElementById('penilaian-ekstra').style.backgroundColor = '#f3f4f6';
+        document.getElementById('penilaian-ekstra').style.color = '#6b7280';
+        document.getElementById('penilaian-nama').style.backgroundColor = '#f3f4f6';
+        document.getElementById('penilaian-nama').style.color = '#6b7280';
+        
+        // Set field yang bisa diedit
+        document.getElementById('penilaian-nilai').value = data.nilai;
+        document.getElementById('penilaian-catatan').value = data.catatan || data.deskripsi || '';
+      }, 100);
+      
+      document.getElementById('modal-penilaian').classList.remove('hidden');
+    }
+    
+    function exportRekapPenilaian() {
+      if (rekapPenilaianData.length === 0) {
+        showExportNotification('error', 'Tidak ada data untuk di-export', 'Filter data terlebih dahulu');
+        return;
+      }
+
+      try {
+        // Siapkan data untuk export
+        const headers = ['No', 'Ekstrakurikuler', 'Kelas', 'Nama Siswa', 'Kategori Penilaian', 'Deskripsi'];
+        const rows = rekapPenilaianData.map((item, index) => [
+          index + 1,
+          item.ekstra || '-',
+          item.kelas || '-',
+          item.nama || '-',
+          item.nilai || '-',
+          item.catatan || item.deskripsi || '-'
+        ]);
+        
+        // Download file Excel menggunakan XLSX
+        const worksheet = XLSX.utils.json_to_sheet(
+          rekapPenilaianData.map((item, index) => ({
+            'No': index + 1,
+            'Ekstrakurikuler': item.ekstra || '-',
+            'Kelas': item.kelas || '-',
+            'Nama Siswa': item.nama || '-',
+            'Kategori Penilaian': item.nilai || '-',
+            'Deskripsi': item.catatan || item.deskripsi || '-'
+          }))
+        );
+        
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Penilaian");
+        
+        // Buat nama file dengan timestamp
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+        const fileName = `Rekap_Penilaian_${timestamp}.xlsx`;
+        
+        // Ekspor ke file Excel
+        XLSX.writeFile(workbook, fileName);
+        
+        // Tampilkan preview data
+        showExcelPreview(headers, rows);
+        
+        showExportNotification('success', 'Export Berhasil!', 'File Excel telah diunduh');
+        
+      } catch (error) {
+        console.error('Error export rekap penilaian:', error);
+        showExportNotification('error', 'Export Gagal!', error.message);
+      }
+    }
+    
+    function showExcelPreview(headers, rows) {
+      // Format data untuk preview
+      let previewText = headers.join('\t') + '\n';
+      previewText += '--------------------------------------------------------------\n';
+      
+      rows.forEach(row => {
+        previewText += row.join('\t') + '\n';
+      });
+      
+      document.getElementById('excel-preview-content').textContent = previewText;
+      document.getElementById('excel-preview').classList.remove('hidden');
+      
+      // Scroll ke preview
+      document.getElementById('excel-preview').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function closeExcelPreview() {
+      document.getElementById('excel-preview').classList.add('hidden');
     }
 
     // === FUNGSI UNTUK REKAP HORIZONTAL ===
@@ -1967,6 +2307,9 @@
       } else if (currentPage === 'laporan-rekap') {
         // Inisialisasi halaman rekap jika sedang aktif
         updateRekapFilter();
+      } else if (currentPage === 'rekap-penilaian') {
+        // Load data untuk halaman rekap penilaian
+        loadRekapPenilaianData();
       }
       
       updateKelasDatalist();
@@ -2347,6 +2690,13 @@
       document.getElementById('anggota-kelas').value = kelas;
       document.getElementById('kelas-dropdown').classList.remove('show');
     }
+
+    // === EVENT LISTENERS UNTUK FILTER REKAP PENILAIAN ===
+
+    document.getElementById('rekap-ekstra-filter').addEventListener('change', loadRekapPenilaianData);
+    document.getElementById('rekap-kelas-filter').addEventListener('change', loadRekapPenilaianData);
+    document.getElementById('rekap-kategori-filter').addEventListener('change', loadRekapPenilaianData);
+    document.getElementById('rekap-nama-filter').addEventListener('input', loadRekapPenilaianData);
 
     // === DROPDOWN CHANGE HANDLERS ===
 
