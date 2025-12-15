@@ -265,6 +265,98 @@
       font-size: 0.85rem;
     }
     
+    /* Role Management Styles */
+    .role-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .role-admin {
+      background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+      color: white;
+    }
+    .role-pembina {
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+      color: white;
+    }
+    
+    .role-selector-container {
+      padding: 16px;
+      border-bottom: 1px solid #e5e7eb;
+      background: linear-gradient(135deg, #f0f9ff 0%, #fefce8 100%);
+    }
+    .role-selector-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
+    .role-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .role-button {
+      flex: 1;
+      padding: 10px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      background: white;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .role-button:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    .role-button.active {
+      border-color: #3b82f6;
+      background: #3b82f6;
+      color: white;
+    }
+    
+    /* Role-based visibility */
+    .admin-only {
+      display: flex !important;
+    }
+    .admin-only-button {
+      display: inline-flex !important;
+    }
+    .admin-pembina {
+      display: flex !important;
+    }
+    
+    .mobile-menu-item.admin-only {
+      display: block !important;
+    }
+    .mobile-menu-item.admin-pembina {
+      display: block !important;
+    }
+    
+    /* Mode Pembina */
+    body.pembina-mode .admin-only,
+    body.pembina-mode .admin-only-button {
+      display: none !important;
+    }
+    
+    body.pembina-mode .admin-pembina {
+      display: flex !important;
+    }
+    
+    body.pembina-mode .mobile-menu-item.admin-only {
+      display: none !important;
+    }
+    
+    body.pembina-mode .mobile-menu-item.admin-pembina {
+      display: block !important;
+    }
+    
     /* ===== START OF MOBILE RESPONSIVE CSS ===== */
     /* Responsive Layout */
     @media (max-width: 768px) {
@@ -284,7 +376,7 @@
       }
       
       /* Mobile Header */
-      .mobile-header {
+      .mobile-only.mobile-header {
         display: block !important;
         background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
         color: white;
@@ -548,9 +640,21 @@
         <h1 id="mobileAppTitle">Manajemen Ekskul</h1>
         <p id="mobileSchoolName">SMA TAKHASSUS AL QUR'AN</p>
       </div>
-      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-        ☰
-      </button>
+      <div class="flex items-center gap-2">
+        <span id="mobileRoleBadge" class="role-badge role-admin">Admin</span>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+          ☰
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Role Selector untuk Mobile -->
+  <div class="mobile-only role-selector-container" style="display: none;" id="mobileRoleSelector">
+    <div class="role-selector-label">Login sebagai:</div>
+    <div class="role-buttons">
+      <button class="role-button active" onclick="setRole('admin')">Admin</button>
+      <button class="role-button" onclick="setRole('pembina')">Pembina</button>
     </div>
   </div>
 
@@ -559,31 +663,36 @@
     <div class="mobile-menu-content">
       <div class="mb-6">
         <h3 class="text-lg font-bold mb-4">Menu Aplikasi</h3>
-        <a href="#" class="mobile-menu-item block py-3 px-4 rounded-lg mb-2" data-page="dashboard">
+        <!-- Menu Admin -->
+        <a href="#" class="mobile-menu-item admin-only block py-3 px-4 rounded-lg mb-2" data-page="dashboard">
           📊 Dashboard
         </a>
-        <a href="#" class="mobile-menu-item block py-3 px-4 rounded-lg mb-2" data-page="anggota">
+        <a href="#" class="mobile-menu-item admin-only block py-3 px-4 rounded-lg mb-2" data-page="anggota">
           👥 Data Anggota
         </a>
-        <a href="#" class="mobile-menu-item block py-3 px-4 rounded-lg mb-2" data-page="ekstra">
+        <a href="#" class="mobile-menu-item admin-only block py-3 px-4 rounded-lg mb-2" data-page="ekstra">
           🎯 Jenis Ekstra
         </a>
-        <a href="#" class="mobile-menu-item block py-3 px-4 rounded-lg mb-2" data-page="penilaian">
+        
+        <!-- Menu Admin & Pembina -->
+        <a href="#" class="mobile-menu-item admin-pembina block py-3 px-4 rounded-lg mb-2" data-page="penilaian">
           ⭐ Penilaian
         </a>
-        <a href="#" class="mobile-menu-item block py-3 px-4 rounded-lg mb-2" data-page="absensi">
+        <a href="#" class="mobile-menu-item admin-pembina block py-3 px-4 rounded-lg mb-2" data-page="absensi">
           📝 Absensi
         </a>
-        <a href="#" class="mobile-menu-item block py-3 px-4 rounded-lg mb-2" data-page="jurnal">
+        <a href="#" class="mobile-menu-item admin-pembina block py-3 px-4 rounded-lg mb-2" data-page="jurnal">
           📔 Jurnal Kegiatan
         </a>
-        <a href="#" class="mobile-menu-item block py-3 px-4 rounded-lg mb-2" data-page="laporan">
+        
+        <!-- Menu Admin -->
+        <a href="#" class="mobile-menu-item admin-only block py-3 px-4 rounded-lg mb-2" data-page="laporan">
           📄 Laporan
         </a>
-        <a href="#" class="mobile-menu-item block py-3 px-4 rounded-lg mb-2" data-page="laporan-rekap">
+        <a href="#" class="mobile-menu-item admin-only block py-3 px-4 rounded-lg mb-2" data-page="laporan-rekap">
           📋 Rekap Kehadiran
         </a>
-        <a href="#" class="mobile-menu-item block py-3 px-4 rounded-lg mb-2" data-page="rekap-penilaian">
+        <a href="#" class="mobile-menu-item admin-only block py-3 px-4 rounded-lg mb-2" data-page="rekap-penilaian">
           📊 Rekap Penilaian
         </a>
       </div>
@@ -631,43 +740,61 @@
     <div class="p-6 border-b border-gray-200">
      <h1 id="appTitle" class="text-2xl font-bold text-gray-800">Manajemen Ekskul</h1>
      <p id="schoolName" class="text-sm text-gray-500 mt-1">SMA TAKHASSUS AL QUR'AN</p>
+     <div class="mt-2">
+      <span id="desktopRoleBadge" class="role-badge role-admin">Admin</span>
+     </div>
     </div>
+    
+    <!-- Role Selector untuk Desktop -->
+    <div class="desktop-only role-selector-container">
+      <div class="role-selector-label">Login sebagai:</div>
+      <div class="role-buttons">
+        <button class="role-button active" onclick="setRole('admin')">Admin</button>
+        <button class="role-button" onclick="setRole('pembina')">Pembina</button>
+      </div>
+    </div>
+    
     <nav class="flex-1 p-4 overflow-y-auto">
-     <a href="#" class="menu-item active flex items-center px-4 py-3 rounded-lg mb-2" data-page="dashboard">
+     <!-- Menu untuk Admin (semua fitur) -->
+     <a href="#" class="menu-item active admin-only flex items-center px-4 py-3 rounded-lg mb-2" data-page="dashboard">
       <span class="mr-3">📊</span>
       <span>Dashboard</span>
      </a>
-     <a href="#" class="menu-item flex items-center px-4 py-3 rounded-lg mb-2" data-page="anggota">
+     <a href="#" class="menu-item admin-only flex items-center px-4 py-3 rounded-lg mb-2" data-page="anggota">
       <span class="mr-3">👥</span>
       <span>Data Anggota</span>
      </a>
-     <a href="#" class="menu-item flex items-center px-4 py-3 rounded-lg mb-2" data-page="ekstra">
+     <a href="#" class="menu-item admin-only flex items-center px-4 py-3 rounded-lg mb-2" data-page="ekstra">
       <span class="mr-3">🎯</span>
       <span>Jenis Ekstra</span>
      </a>
-     <a href="#" class="menu-item flex items-center px-4 py-3 rounded-lg mb-2" data-page="penilaian">
+     
+     <!-- Menu untuk Admin dan Pembina -->
+     <a href="#" class="menu-item admin-pembina flex items-center px-4 py-3 rounded-lg mb-2" data-page="penilaian">
       <span class="mr-3">⭐</span>
       <span>Penilaian</span>
      </a>
-     <a href="#" class="menu-item flex items-center px-4 py-3 rounded-lg mb-2" data-page="absensi">
+     <a href="#" class="menu-item admin-pembina flex items-center px-4 py-3 rounded-lg mb-2" data-page="absensi">
       <span class="mr-3">📝</span>
       <span>Absensi</span>
      </a>
-     <a href="#" class="menu-item flex items-center px-4 py-3 rounded-lg mb-2" data-page="jurnal">
+     <a href="#" class="menu-item admin-pembina flex items-center px-4 py-3 rounded-lg mb-2" data-page="jurnal">
       <span class="mr-3">📔</span>
       <span>Jurnal Kegiatan</span>
      </a>
-     <a href="#" class="menu-item flex items-center px-4 py-3 rounded-lg mb-2" data-page="laporan">
+     
+     <!-- Menu khusus Admin -->
+     <a href="#" class="menu-item admin-only flex items-center px-4 py-3 rounded-lg mb-2" data-page="laporan">
       <span class="mr-3">📄</span>
       <span>Laporan</span>
      </a>
      <!-- TAMBAHAN: Menu Laporan Rekap Horizontal -->
-     <a href="#" class="menu-item flex items-center px-4 py-3 rounded-lg mb-2" data-page="laporan-rekap">
+     <a href="#" class="menu-item admin-only flex items-center px-4 py-3 rounded-lg mb-2" data-page="laporan-rekap">
       <span class="mr-3">📋</span>
       <span>Rekap Kehadiran</span>
      </a>
      <!-- TAMBAHAN: Menu Rekap Penilaian -->
-     <a href="#" class="menu-item flex items-center px-4 py-3 rounded-lg mb-2" data-page="rekap-penilaian">
+     <a href="#" class="menu-item admin-only flex items-center px-4 py-3 rounded-lg mb-2" data-page="rekap-penilaian">
       <span class="mr-3">📊</span>
       <span>Rekap Penilaian</span>
      </a>
@@ -756,9 +883,9 @@
         <p class="text-gray-600 mt-1">Kelola data anggota ekstrakurikuler</p>
        </div>
        <div class="flex gap-3">
-        <button onclick="downloadTemplateAnggota()" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700">📥 Download Template</button>
-        <button onclick="openImportAnggotaModal()" class="bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700">📤 Import CSV</button>
-        <button onclick="openAddAnggotaModal()" class="btn-primary text-white px-6 py-3 rounded-lg font-medium">+ Tambah Anggota</button>
+        <button onclick="downloadTemplateAnggota()" class="admin-only-button bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700">📥 Download Template</button>
+        <button onclick="openImportAnggotaModal()" class="admin-only-button bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700">📤 Import CSV</button>
+        <button onclick="openAddAnggotaModal()" class="admin-only-button btn-primary text-white px-6 py-3 rounded-lg font-medium">+ Tambah Anggota</button>
        </div>
       </div>
       
@@ -801,9 +928,9 @@
         <p class="text-gray-600 mt-1">Kelola jenis ekstrakurikuler</p>
        </div>
        <div class="flex gap-3">
-        <button onclick="downloadTemplateEkstra()" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700">📥 Download Template</button>
-        <button onclick="openImportEkstraModal()" class="bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700">📤 Import CSV</button>
-        <button onclick="openAddEkstraModal()" class="btn-primary text-white px-6 py-3 rounded-lg font-medium">+ Tambah Ekstra</button>
+        <button onclick="downloadTemplateEkstra()" class="admin-only-button bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700">📥 Download Template</button>
+        <button onclick="openImportEkstraModal()" class="admin-only-button bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700">📤 Import CSV</button>
+        <button onclick="openAddEkstraModal()" class="admin-only-button btn-primary text-white px-6 py-3 rounded-lg font-medium">+ Tambah Ekstra</button>
        </div>
       </div>
       
@@ -1061,7 +1188,7 @@
       <div class="bg-white rounded-xl shadow-md p-6 mb-6">
        <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-bold text-gray-800">Laporan Kehadiran</h3>
-        <button onclick="exportKehadiran()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2">
+        <button onclick="exportKehadiran()" class="admin-only-button bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2">
          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
          </svg>
@@ -1138,7 +1265,7 @@
       <div class="bg-white rounded-xl shadow-md p-6">
        <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-bold text-gray-800">Laporan Jurnal</h3>
-        <button onclick="exportJurnal()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2">
+        <button onclick="exportJurnal()" class="admin-only-button bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2">
          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
          </svg>
@@ -1219,10 +1346,10 @@
        </div>
        
        <div class="flex gap-3">
-        <button onclick="generateRekapHorizontal()" class="btn-primary text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2">
+        <button onclick="generateRekapHorizontal()" class="admin-only-button btn-primary text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2">
          📊 Generate Laporan
         </button>
-        <button onclick="exportRekapHorizontal()" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 flex items-center gap-2">
+        <button onclick="exportRekapHorizontal()" class="admin-only-button bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 flex items-center gap-2">
          📥 Export Excel
         </button>
        </div>
@@ -1320,7 +1447,7 @@
         <div class="text-gray-700 font-medium">
           Hasil Rekap: <span id="rekap-result-count" class="bg-blue-600 text-white px-2 py-1 rounded-full text-sm">0 data</span>
         </div>
-        <button onclick="exportRekapPenilaian()" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 flex items-center gap-2">
+        <button onclick="exportRekapPenilaian()" class="admin-only-button bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 flex items-center gap-2">
          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
          </svg>
@@ -1664,6 +1791,13 @@
     function toggleMobileMenu() {
       const overlay = document.getElementById('mobileMenuOverlay');
       overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
+      
+      // Update menu untuk role
+      if (currentRole === 'pembina') {
+        document.querySelectorAll('.mobile-menu-item.admin-only').forEach(item => {
+          item.style.display = 'none';
+        });
+      }
     }
 
     function closeMobileMenu() {
@@ -1703,8 +1837,8 @@
         // Close mobile menu
         closeMobileMenu();
         
-        // Update UI
-        updateUI();
+        // Update UI berdasarkan role
+        updateUIForRole();
       });
     });
 
@@ -1761,6 +1895,10 @@
     let importAnggotaQueue = [];
     let filteredAbsensiData = []; // Data absensi yang sudah difilter
 
+    // ===== ROLE MANAGEMENT VARIABLES =====
+    let currentRole = 'admin'; // Default role: admin
+    let pembinaEkstra = null; // Ekstrakurikuler yang diampu pembina
+
     const defaultConfig = {
       app_title: "Manajemen Ekskul",
       school_name: "SMA TAKHASSUS AL QUR'AN",
@@ -1770,6 +1908,235 @@
       primary_action_color: "#3b82f6",
       secondary_action_color: "#22c55e"
     };
+
+    // ===== ROLE MANAGEMENT FUNCTIONS =====
+    
+    function setRole(role) {
+      currentRole = role;
+      
+      // Update active button
+      document.querySelectorAll('.role-button').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.toLowerCase().includes(role)) {
+          btn.classList.add('active');
+        }
+      });
+      
+      // Update role badge
+      const roleBadgeText = role === 'admin' ? 'Admin' : 'Pembina';
+      const roleBadgeClass = role === 'admin' ? 'role-admin' : 'role-pembina';
+      
+      document.querySelectorAll('#mobileRoleBadge, #desktopRoleBadge').forEach(badge => {
+        badge.textContent = roleBadgeText;
+        badge.className = `role-badge ${roleBadgeClass}`;
+      });
+      
+      // Update body class untuk CSS styling
+      document.body.classList.remove('admin-mode', 'pembina-mode');
+      document.body.classList.add(`${role}-mode`);
+      
+      // Tampilkan role selector di mobile untuk pembina
+      if (role === 'pembina') {
+        document.getElementById('mobileRoleSelector').style.display = 'block';
+        
+        // Jika pembina, minta pilih ekstra yang diampu
+        selectEkstraForPembina();
+      } else {
+        document.getElementById('mobileRoleSelector').style.display = 'none';
+        pembinaEkstra = null; // Reset ekstra pembina
+      }
+      
+      // Update UI berdasarkan role
+      updateUIForRole();
+      
+      // Show notification
+      showToast(`Login sebagai: ${roleBadgeText}`);
+    }
+    
+    function selectEkstraForPembina() {
+      const ekstraList = allData.filter(d => d.type === 'ekstra').sort((a, b) => a.nama.localeCompare(b.nama));
+      
+      if (ekstraList.length === 0) {
+        showToast('Tidak ada ekstrakurikuler tersedia');
+        setRole('admin'); // Kembali ke admin
+        return;
+      }
+      
+      // Cek apakah sudah ada ekstra yang dipilih sebelumnya
+      if (pembinaEkstra && ekstraList.some(e => e.nama === pembinaEkstra)) {
+        // Gunakan ekstra yang sudah dipilih sebelumnya
+        return;
+      }
+      
+      // Buat modal untuk memilih ekstra
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4';
+      modal.innerHTML = `
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md fade-in">
+          <div class="p-6 border-b border-gray-200">
+            <h3 class="text-2xl font-bold text-gray-800">Pilih Ekstrakurikuler</h3>
+            <p class="text-sm text-gray-600 mt-1">Anda login sebagai Pembina. Pilih ekstrakurikuler yang Anda ampu:</p>
+          </div>
+          <div class="p-6">
+            <div class="space-y-3 mb-6 max-h-60 overflow-y-auto">
+              ${ekstraList.map(ekstra => `
+                <label class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <input type="radio" name="pembinaEkstra" value="${ekstra.nama}" class="mr-3">
+                  <div>
+                    <p class="font-medium text-gray-800">${ekstra.nama}</p>
+                    <p class="text-sm text-gray-600">Pembina: ${ekstra.pembina}</p>
+                  </div>
+                </label>
+              `).join('')}
+            </div>
+            <div class="flex gap-3">
+              <button onclick="this.closest('.modal-overlay').remove(); setRole('admin')" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50">
+                Kembali ke Admin
+              </button>
+              <button onclick="confirmPembinaEkstra()" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700">
+                Konfirmasi
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+    }
+    
+    function confirmPembinaEkstra() {
+      const selected = document.querySelector('input[name="pembinaEkstra"]:checked');
+      
+      if (!selected) {
+        showToast('Pilih ekstrakurikuler terlebih dahulu!');
+        return;
+      }
+      
+      pembinaEkstra = selected.value;
+      
+      // Close modal
+      const modal = document.querySelector('.modal-overlay:last-child');
+      if (modal) modal.remove();
+      
+      // Update UI
+      updateUIForRole();
+      
+      // Redirect ke dashboard
+      navigateToPage('dashboard');
+      
+      showToast(`Login sebagai Pembina: ${pembinaEkstra}`);
+    }
+    
+    function updateUIForRole() {
+      const isAdmin = currentRole === 'admin';
+      const isPembina = currentRole === 'pembina';
+      
+      // Update judul halaman jika pembina
+      if (isPembina && pembinaEkstra) {
+        document.querySelectorAll('h2.text-3xl').forEach(title => {
+          if (!title.textContent.includes(pembinaEkstra)) {
+            const originalText = title.textContent;
+            title.textContent = originalText + ` - ${pembinaEkstra}`;
+          }
+        });
+      }
+      
+      // Filter dropdown untuk pembina
+      if (isPembina && pembinaEkstra) {
+        filterDropdownsForPembina();
+      }
+      
+      // Update form input klasikal untuk pembina
+      if (isPembina && pembinaEkstra) {
+        setupPembinaFormInput();
+      }
+    }
+    
+    function filterDropdownsForPembina() {
+      // Filter dropdown ekstrakurikuler untuk hanya menampilkan ekstra pembina
+      const ekstraSelects = [
+        'penilaian-select-ekstra', 'absensi-select-ekstra', 
+        'jurnal-ekstra', 'filter-kehadiran-ekstra', 'filter-jurnal-ekstra',
+        'search-absensi-ekstra', 'filter-rekap-ekstra', 'rekap-ekstra-filter'
+      ];
+      
+      ekstraSelects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (select) {
+          // Sembunyikan semua option kecuali ekstra pembina
+          Array.from(select.options).forEach(option => {
+            if (option.value === pembinaEkstra || option.value === '' || option.value === 'semua') {
+              option.style.display = 'block';
+            } else {
+              option.style.display = 'none';
+            }
+          });
+          
+          // Set nilai default ke ekstra pembina
+          if (select.value !== pembinaEkstra && select.value !== '' && select.value !== 'semua') {
+            select.value = pembinaEkstra;
+            
+            // Trigger change event jika select ini aktif
+            if (select.parentElement && select.parentElement.style.display !== 'none') {
+              select.dispatchEvent(new Event('change'));
+            }
+          }
+          
+          // Nonaktifkan select jika hanya ada satu pilihan
+          if (select.id !== 'filter-kehadiran-ekstra' && select.id !== 'filter-jurnal-ekstra' && 
+              select.id !== 'search-absensi-ekstra' && select.id !== 'filter-rekap-ekstra' && 
+              select.id !== 'rekap-ekstra-filter') {
+            select.disabled = true;
+          }
+        }
+      });
+    }
+    
+    function setupPembinaFormInput() {
+      // Setup form input klasikal untuk pembina
+      if (document.getElementById('penilaian-select-ekstra')) {
+        document.getElementById('penilaian-select-ekstra').value = pembinaEkstra;
+        document.getElementById('penilaian-select-ekstra').dispatchEvent(new Event('change'));
+      }
+      
+      if (document.getElementById('absensi-select-ekstra')) {
+        document.getElementById('absensi-select-ekstra').value = pembinaEkstra;
+        // Trigger change setelah tanggal diisi
+        const today = new Date().toISOString().split('T')[0];
+        if (document.getElementById('absensi-tanggal-klasikal').value) {
+          document.getElementById('absensi-select-ekstra').dispatchEvent(new Event('change'));
+        }
+      }
+    }
+    
+    function navigateToPage(page) {
+      // Cek akses berdasarkan role
+      if (currentRole === 'pembina') {
+        // Pembina tidak bisa akses halaman admin
+        const adminPages = ['anggota', 'ekstra', 'laporan', 'laporan-rekap', 'rekap-penilaian'];
+        if (adminPages.includes(page)) {
+          showToast('Akses ditolak! Halaman ini hanya untuk Admin.');
+          page = 'dashboard'; // Redirect ke dashboard
+        }
+      }
+      
+      // Update menu active
+      document.querySelectorAll('.menu-item, .mobile-nav-item, .mobile-menu-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.page === page) {
+          item.classList.add('active');
+        }
+      });
+      
+      // Hide all pages
+      document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+      
+      // Show selected page
+      document.getElementById('page-' + page).classList.remove('hidden');
+      
+      // Update UI untuk role
+      updateUIForRole();
+    }
 
     // === GOOGLE SHEETS API FUNCTIONS ===
     
@@ -1793,6 +2160,9 @@
           loadRekapPenilaianData(); // Load data rekap penilaian
           updateSearchFilterSelects(); // Update filter untuk pencarian absensi
           applySearchAbsensi(); // Terapkan pencarian awal untuk absensi
+          
+          // Update UI untuk role setelah data dimuat
+          updateUIForRole();
         } else {
           showToast('Gagal memuat data: ' + result.message);
         }
@@ -1891,6 +2261,12 @@
     // === CASCADE DELETE WITH WARNING ===
     
     async function showConfirmDelete(type, id) {
+      // Cek role untuk pembina
+      if (currentRole === 'pembina') {
+        showToast('Akses ditolak! Hanya Admin yang dapat menghapus data.');
+        return;
+      }
+      
       showLoading(true);
       
       try {
@@ -1988,6 +2364,11 @@
         ekstra.map(e => `<option value="${e.nama}">${e.nama}</option>`).join('');
       
       select.innerHTML = ekstraOptions;
+      
+      // Filter untuk pembina
+      if (currentRole === 'pembina' && pembinaEkstra) {
+        filterDropdownsForPembina();
+      }
     }
     
     function applySearchAbsensi() {
@@ -2000,9 +2381,14 @@
 
       let filtered = allData.filter(d => d.type === 'absensi');
 
+      // Filter khusus untuk pembina
+      if (currentRole === 'pembina' && pembinaEkstra) {
+        filtered = filtered.filter(d => d.ekstra === pembinaEkstra);
+      }
+
       if (nama) filtered = filtered.filter(d => d.nama.toLowerCase().includes(nama));
       if (kelas) filtered = filtered.filter(d => d.kelas.toLowerCase().includes(kelas));
-      if (ekstra) filtered = filtered.filter(d => d.ekstra === ekstra);
+      if (ekstra && currentRole === 'admin') filtered = filtered.filter(d => d.ekstra === ekstra);
       if (status) filtered = filtered.filter(d => d.status === status);
       if (dari) filtered = filtered.filter(d => d.tanggal >= dari);
       if (sampai) filtered = filtered.filter(d => d.tanggal <= sampai);
@@ -2074,6 +2460,11 @@
         ekstra.map(e => `<option value="${e.nama}">${e.nama}</option>`).join('');
       
       select.innerHTML = ekstraOptions;
+      
+      // Filter untuk pembina
+      if (currentRole === 'pembina' && pembinaEkstra) {
+        filterDropdownsForPembina();
+      }
     }
     
     function loadRekapPenilaianData() {
@@ -2085,7 +2476,10 @@
       // Filter data penilaian
       let penilaianData = allData.filter(d => d.type === 'penilaian');
       
-      if (ekstraFilter !== 'semua') {
+      // Filter khusus untuk pembina
+      if (currentRole === 'pembina' && pembinaEkstra) {
+        penilaianData = penilaianData.filter(d => d.ekstra === pembinaEkstra);
+      } else if (ekstraFilter !== 'semua') {
         penilaianData = penilaianData.filter(d => d.ekstra === ekstraFilter);
       }
       
@@ -2133,7 +2527,7 @@
             </td>
             <td class="px-6 py-4 text-sm text-gray-600">${item.catatan || item.deskripsi || '-'}</td>
             <td class="px-6 py-4 text-center">
-              <button onclick='editPenilaianRekap(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="text-blue-600 hover:text-blue-800 font-medium text-sm">Edit</button>
+              ${currentRole === 'admin' ? `<button onclick='editPenilaianRekap(${JSON.stringify(item).replace(/'/g, "&apos;")})' class="text-blue-600 hover:text-blue-800 font-medium text-sm">Edit</button>` : '-'}
             </td>
           </tr>
         `;
@@ -2143,6 +2537,12 @@
     }
     
     function editPenilaianRekap(data) {
+      // Cek role
+      if (currentRole === 'pembina') {
+        showToast('Akses ditolak! Hanya Admin yang dapat mengedit data.');
+        return;
+      }
+      
       document.getElementById('modal-penilaian-title').textContent = 'Edit Penilaian';
       document.getElementById('penilaian-id').value = data.id;
       
@@ -2253,6 +2653,11 @@
         ekstra.map(e => `<option value="${e.nama}">${e.nama}</option>`).join('');
       
       select.innerHTML = ekstraOptions;
+      
+      // Filter untuk pembina
+      if (currentRole === 'pembina' && pembinaEkstra) {
+        filterDropdownsForPembina();
+      }
     }
     
     function generateRekapHorizontal() {
@@ -2263,7 +2668,10 @@
       // Filter data absensi
       let absensiData = allData.filter(d => d.type === 'absensi');
       
-      if (selectedEkstra) {
+      // Filter khusus untuk pembina
+      if (currentRole === 'pembina' && pembinaEkstra) {
+        absensiData = absensiData.filter(d => d.ekstra === pembinaEkstra);
+      } else if (selectedEkstra) {
         absensiData = absensiData.filter(d => d.ekstra === selectedEkstra);
       }
       
@@ -2284,7 +2692,9 @@
       
       // Ambil data anggota berdasarkan ekstra yang dipilih
       let anggotaData = allData.filter(d => d.type === 'anggota');
-      if (selectedEkstra) {
+      if (currentRole === 'pembina' && pembinaEkstra) {
+        anggotaData = anggotaData.filter(d => d.ekstra === pembinaEkstra);
+      } else if (selectedEkstra) {
         anggotaData = anggotaData.filter(d => d.ekstra === selectedEkstra);
       }
       
@@ -2334,7 +2744,9 @@
       });
       
       // Render tabel
-      renderRekapHorizontalTable(allDates, rekapData, selectedEkstra, dariTanggal, sampaiTanggal);
+      renderRekapHorizontalTable(allDates, rekapData, 
+        currentRole === 'pembina' ? pembinaEkstra : selectedEkstra, 
+        dariTanggal, sampaiTanggal);
     }
     
     function renderRekapHorizontalTable(dates, data, ekstra, dari, sampai) {
@@ -2482,6 +2894,12 @@
     // === EXPORT TO EXCEL FUNCTIONS ===
     
     function exportKehadiran() {
+      // Cek role
+      if (currentRole === 'pembina') {
+        showToast('Akses ditolak! Hanya Admin yang dapat mengekspor data.');
+        return;
+      }
+      
       if (filteredKehadiranData.length === 0) {
         showExportNotification('error', 'Tidak ada data untuk di-export', 'Filter data terlebih dahulu');
         return;
@@ -2514,6 +2932,12 @@
     }
 
     function exportJurnal() {
+      // Cek role
+      if (currentRole === 'pembina') {
+        showToast('Akses ditolak! Hanya Admin yang dapat mengekspor data.');
+        return;
+      }
+      
       if (filteredJurnalData.length === 0) {
         showExportNotification('error', 'Tidak ada data untuk di-export', 'Filter data terlebih dahulu');
         return;
@@ -2650,6 +3074,12 @@
     }
 
     function downloadTemplateEkstra() {
+      // Cek role
+      if (currentRole === 'pembina') {
+        showToast('Akses ditolak! Hanya Admin yang dapat mendownload template.');
+        return;
+      }
+      
       try {
         const csv = 'nama,pembina\nBasket,Pak Budi\nFutsal,Pak Ahmad\nPramuka,Bu Siti';
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -2672,6 +3102,12 @@
     }
 
     function downloadTemplateAnggota() {
+      // Cek role
+      if (currentRole === 'pembina') {
+        showToast('Akses ditolak! Hanya Admin yang dapat mendownload template.');
+        return;
+      }
+      
       try {
         const csv = 'nama,kelas,ekstra\nAndi Pratama,X-1,Basket\nBudi Santoso,X-2,Futsal\nCitra Dewi,XI-1,Pramuka';
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -2694,6 +3130,12 @@
     }
 
     function openImportEkstraModal() {
+      // Cek role
+      if (currentRole === 'pembina') {
+        showToast('Akses ditolak! Hanya Admin yang dapat mengimport data.');
+        return;
+      }
+      
       document.getElementById('preview-ekstra').classList.add('hidden');
       document.getElementById('no-preview-ekstra').classList.remove('hidden');
       document.getElementById('file-ekstra').value = '';
@@ -2702,6 +3144,12 @@
     }
 
     function openImportAnggotaModal() {
+      // Cek role
+      if (currentRole === 'pembina') {
+        showToast('Akses ditolak! Hanya Admin yang dapat mengimport data.');
+        return;
+      }
+      
       document.getElementById('preview-anggota').classList.add('hidden');
       document.getElementById('no-preview-anggota').classList.remove('hidden');
       document.getElementById('file-anggota').value = '';
@@ -2912,6 +3360,9 @@
       updateEkstraSelects();
       updateFilterSelects();
       updateSearchFilterSelects();
+      
+      // Update untuk role
+      updateUIForRole();
     }
 
     function updateDashboard() {
@@ -3008,6 +3459,18 @@
     }
 
     function renderAnggotaTable() {
+      // Cek role
+      if (currentRole === 'pembina') {
+        document.getElementById('anggota-table').innerHTML = `
+          <tr>
+            <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+              Akses ditolak! Halaman ini hanya untuk Admin.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
       const searchValue = document.getElementById('search-anggota') ? document.getElementById('search-anggota').value.toLowerCase() : '';
       
       let anggota = allData.filter(d => d.type === 'anggota');
@@ -3056,6 +3519,18 @@
     }
 
     function renderEkstraTable() {
+      // Cek role
+      if (currentRole === 'pembina') {
+        document.getElementById('ekstra-table').innerHTML = `
+          <tr>
+            <td colspan="3" class="px-6 py-8 text-center text-gray-500">
+              Akses ditolak! Halaman ini hanya untuk Admin.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
       const ekstra = allData.filter(d => d.type === 'ekstra')
         .sort((a, b) => a.nama.localeCompare(b.nama));
       
@@ -3079,12 +3554,19 @@
     }
 
     function renderPenilaianTable() {
-      const penilaian = allData.filter(d => d.type === 'penilaian')
-        .sort((a, b) => {
-          const kelasCompare = a.kelas.localeCompare(b.kelas);
-          if (kelasCompare !== 0) return kelasCompare;
-          return a.nama.localeCompare(b.nama);
-        });
+      let penilaian = allData.filter(d => d.type === 'penilaian');
+      
+      // Filter untuk pembina
+      if (currentRole === 'pembina' && pembinaEkstra) {
+        penilaian = penilaian.filter(d => d.ekstra === pembinaEkstra);
+      }
+      
+      penilaian.sort((a, b) => {
+        const kelasCompare = a.kelas.localeCompare(b.kelas);
+        if (kelasCompare !== 0) return kelasCompare;
+        return a.nama.localeCompare(b.nama);
+      });
+      
       const tbody = document.getElementById('penilaian-table');
       
       if (penilaian.length === 0) {
@@ -3111,7 +3593,7 @@
             </td>
             <td class="px-6 py-4 text-sm text-gray-600">${p.catatan || '-'}</td>
             <td class="px-6 py-4 text-center">
-              <button onclick='editPenilaian(${JSON.stringify(p).replace(/'/g, "&apos;")})' class="text-blue-600 hover:text-blue-800 font-medium text-sm">Edit</button>
+              ${currentRole === 'admin' ? `<button onclick='editPenilaian(${JSON.stringify(p).replace(/'/g, "&apos;")})' class="text-blue-600 hover:text-blue-800 font-medium text-sm">Edit</button>` : '-'}
             </td>
           </tr>
         `;
@@ -3119,7 +3601,15 @@
     }
 
     function renderJurnalList() {
-      const jurnal = allData.filter(d => d.type === 'jurnal').reverse();
+      let jurnal = allData.filter(d => d.type === 'jurnal');
+      
+      // Filter untuk pembina
+      if (currentRole === 'pembina' && pembinaEkstra) {
+        jurnal = jurnal.filter(d => d.ekstra === pembinaEkstra);
+      }
+      
+      jurnal = jurnal.reverse();
+      
       const list = document.getElementById('jurnal-list');
       
       if (jurnal.length === 0) {
@@ -3143,11 +3633,13 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </button>
+              ${currentRole === 'admin' ? `
               <button onclick='showConfirmDelete("jurnal", "${j.id}")' class="text-red-600 hover:text-red-800">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>
+              ` : ''}
             </div>
           </div>
           <p class="text-gray-600">${j.deskripsi}</p>
@@ -3191,6 +3683,11 @@
           if (currentValue) select.value = currentValue;
         }
       });
+      
+      // Filter untuk pembina
+      if (currentRole === 'pembina' && pembinaEkstra) {
+        filterDropdownsForPembina();
+      }
     }
 
     function updateFilterSelects() {
@@ -3204,6 +3701,11 @@
       
       filterKehadiranEkstra.innerHTML = ekstraOptions;
       filterJurnalEkstra.innerHTML = ekstraOptions;
+      
+      // Filter untuk pembina
+      if (currentRole === 'pembina' && pembinaEkstra) {
+        filterDropdownsForPembina();
+      }
     }
 
     // === DATALIST HANDLERS ===
@@ -3285,6 +3787,7 @@
     });
 
     // === INPUT KLASIKAL HANDLERS ===
+    // PERBAIKAN: Menampilkan semua anggota meskipun belum ada penilaian
 
     document.getElementById('penilaian-select-ekstra').addEventListener('change', function() {
       const selectedEkstra = this.value;
@@ -3295,12 +3798,11 @@
         return;
       }
 
+      // Ambil semua anggota di ekstra ini
       const anggota = allData.filter(d => d.type === 'anggota' && d.ekstra === selectedEkstra)
         .sort((a, b) => {
-          // Urutkan berdasarkan kelas dulu (A-Z)
           const kelasCompare = a.kelas.localeCompare(b.kelas);
           if (kelasCompare !== 0) return kelasCompare;
-          // Kalau kelas sama, urutkan berdasarkan nama (A-Z)
           return a.nama.localeCompare(b.nama);
         });
 
@@ -3309,27 +3811,54 @@
         return;
       }
 
+      // Ambil data penilaian yang sudah ada untuk ekstra ini
+      const existingPenilaian = allData.filter(d => d.type === 'penilaian' && d.ekstra === selectedEkstra);
+      
       const tbody = document.getElementById('penilaian-klasikal-tbody');
-      tbody.innerHTML = anggota.map(a => `
-        <tr class="hover:bg-gray-50">
-          <td class="px-4 py-3 text-sm text-gray-800">${a.nama}</td>
-          <td class="px-4 py-3 text-sm text-gray-600">${a.kelas}</td>
-          <td class="px-4 py-3">
-            <select class="penilaian-nilai-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" data-nama="${a.nama}" data-kelas="${a.kelas}" data-ekstra="${a.ekstra}">
-              <option value="Sangat Baik">Sangat Baik</option>
-              <option value="Baik" selected>Baik</option>
-              <option value="Sedang">Sedang</option>
-              <option value="Cukup">Cukup</option>
-            </select>
-          </td>
-          <td class="px-4 py-3">
-            <input type="text" class="penilaian-catatan-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" placeholder="Catatan..." data-nama="${a.nama}" />
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = anggota.map(a => {
+        // Cari penilaian yang sudah ada untuk siswa ini
+        const existing = existingPenilaian.find(p => p.nama === a.nama && p.kelas === a.kelas);
+        
+        return `
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 text-sm text-gray-800">${a.nama}</td>
+            <td class="px-4 py-3 text-sm text-gray-600">${a.kelas}</td>
+            <td class="px-4 py-3">
+              <select class="penilaian-nilai-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" 
+                data-nama="${a.nama}" data-kelas="${a.kelas}" data-ekstra="${a.ekstra}"
+                ${existing ? 'disabled style="background-color: #f3f4f6;"' : ''}>
+                <option value="Sangat Baik" ${existing && existing.nilai === 'Sangat Baik' ? 'selected' : ''}>Sangat Baik</option>
+                <option value="Baik" ${(!existing || existing.nilai === 'Baik') ? 'selected' : ''}>Baik</option>
+                <option value="Sedang" ${existing && existing.nilai === 'Sedang' ? 'selected' : ''}>Sedang</option>
+                <option value="Cukup" ${existing && existing.nilai === 'Cukup' ? 'selected' : ''}>Cukup</option>
+              </select>
+              ${existing ? '<small class="text-green-600 block mt-1">✓ Sudah dinilai</small>' : ''}
+            </td>
+            <td class="px-4 py-3">
+              <input type="text" class="penilaian-catatan-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" 
+                placeholder="Catatan..." data-nama="${a.nama}" 
+                value="${existing ? (existing.catatan || existing.deskripsi || '') : ''}"
+                ${existing ? 'disabled style="background-color: #f3f4f6;"' : ''} />
+            </td>
+          </tr>
+        `;
+      }).join('');
 
       document.getElementById('penilaian-no-ekstra').classList.add('hidden');
       document.getElementById('penilaian-klasikal-container').classList.remove('hidden');
+      
+      // Update button text berdasarkan jumlah yang belum dinilai
+      const belumDinilai = anggota.filter(a => !existingPenilaian.some(p => p.nama === a.nama && p.kelas === a.kelas));
+      const btn = document.getElementById('btn-save-penilaian-klasikal');
+      if (belumDinilai.length === 0) {
+        btn.textContent = 'Semua sudah dinilai ✓';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+      } else {
+        btn.textContent = `Simkan ${belumDinilai.length} Penilaian Baru`;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
     });
 
     document.getElementById('absensi-select-ekstra').addEventListener('change', function() {
@@ -3344,10 +3873,8 @@
 
       const anggota = allData.filter(d => d.type === 'anggota' && d.ekstra === selectedEkstra)
         .sort((a, b) => {
-          // Urutkan berdasarkan kelas dulu (A-Z)
           const kelasCompare = a.kelas.localeCompare(b.kelas);
           if (kelasCompare !== 0) return kelasCompare;
-          // Kalau kelas sama, urutkan berdasarkan nama (A-Z)
           return a.nama.localeCompare(b.nama);
         });
 
@@ -3356,24 +3883,48 @@
         return;
       }
 
+      // Ambil data absensi yang sudah ada untuk tanggal dan ekstra ini
+      const existingAbsensi = allData.filter(d => d.type === 'absensi' && d.ekstra === selectedEkstra && d.tanggal === tanggal);
+      
       const tbody = document.getElementById('absensi-klasikal-tbody');
-      tbody.innerHTML = anggota.map(a => `
-        <tr class="hover:bg-gray-50">
-          <td class="px-4 py-3 text-sm text-gray-800">${a.nama}</td>
-          <td class="px-4 py-3 text-sm text-gray-600">${a.kelas}</td>
-          <td class="px-4 py-3 text-center">
-            <select class="absensi-status-input px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" data-nama="${a.nama}" data-kelas="${a.kelas}" data-ekstra="${a.ekstra}">
-              <option value="H" selected>Hadir (H)</option>
-              <option value="S">Sakit (S)</option>
-              <option value="I">Izin (I)</option>
-              <option value="A">Alpa (A)</option>
-            </select>
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = anggota.map(a => {
+        // Cari absensi yang sudah ada untuk siswa ini
+        const existing = existingAbsensi.find(ab => ab.nama === a.nama && ab.kelas === a.kelas);
+        
+        return `
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 text-sm text-gray-800">${a.nama}</td>
+            <td class="px-4 py-3 text-sm text-gray-600">${a.kelas}</td>
+            <td class="px-4 py-3 text-center">
+              <select class="absensi-status-input px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" 
+                data-nama="${a.nama}" data-kelas="${a.kelas}" data-ekstra="${a.ekstra}"
+                ${existing ? 'disabled style="background-color: #f3f4f6;"' : ''}>
+                <option value="H" ${(!existing || existing.status === 'H') ? 'selected' : ''}>Hadir (H)</option>
+                <option value="S" ${existing && existing.status === 'S' ? 'selected' : ''}>Sakit (S)</option>
+                <option value="I" ${existing && existing.status === 'I' ? 'selected' : ''}>Izin (I)</option>
+                <option value="A" ${existing && existing.status === 'A' ? 'selected' : ''}>Alpa (A)</option>
+              </select>
+              ${existing ? '<small class="text-green-600 block mt-1">✓ Sudah diabsensi</small>' : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
 
       document.getElementById('absensi-no-ekstra').classList.add('hidden');
       document.getElementById('absensi-klasikal-container').classList.remove('hidden');
+      
+      // Update button text berdasarkan jumlah yang belum diabsensi
+      const belumDiabsensi = anggota.filter(a => !existingAbsensi.some(ab => ab.nama === a.nama && ab.kelas === a.kelas));
+      const btn = document.getElementById('btn-save-absensi-klasikal');
+      if (belumDiabsensi.length === 0) {
+        btn.textContent = 'Semua sudah diabsensi ✓';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+      } else {
+        btn.textContent = `Simpan ${belumDiabsensi.length} Absensi Baru`;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
     });
 
     document.getElementById('absensi-tanggal-klasikal').addEventListener('change', function() {
@@ -3395,9 +3946,15 @@
 
       let filtered = allData.filter(d => d.type === 'absensi');
 
+      // Filter khusus untuk pembina
+      if (currentRole === 'pembina' && pembinaEkstra) {
+        filtered = filtered.filter(d => d.ekstra === pembinaEkstra);
+      } else if (ekstra) {
+        filtered = filtered.filter(d => d.ekstra === ekstra);
+      }
+
       if (nama) filtered = filtered.filter(d => d.nama.toLowerCase().includes(nama));
       if (kelas) filtered = filtered.filter(d => d.kelas.toLowerCase().includes(kelas));
-      if (ekstra) filtered = filtered.filter(d => d.ekstra === ekstra);
       if (status) filtered = filtered.filter(d => d.status === status);
       if (dari) filtered = filtered.filter(d => d.tanggal >= dari);
       if (sampai) filtered = filtered.filter(d => d.tanggal <= sampai);
@@ -3445,7 +4002,13 @@
 
       let filtered = allData.filter(d => d.type === 'jurnal');
 
-      if (ekstra) filtered = filtered.filter(d => d.ekstra === ekstra);
+      // Filter khusus untuk pembina
+      if (currentRole === 'pembina' && pembinaEkstra) {
+        filtered = filtered.filter(d => d.ekstra === pembinaEkstra);
+      } else if (ekstra) {
+        filtered = filtered.filter(d => d.ekstra === ekstra);
+      }
+
       if (dari) filtered = filtered.filter(d => d.tanggal >= dari);
       if (sampai) filtered = filtered.filter(d => d.tanggal <= sampai);
 
@@ -3493,16 +4056,21 @@
         this.classList.add('active');
         
         const page = this.dataset.page;
-        document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
-        document.getElementById('page-' + page).classList.remove('hidden');
         
-        updateUI();
+        // Navigasi dengan pengecekan role
+        navigateToPage(page);
       });
     });
 
     // === MODAL FUNCTIONS ===
 
     function openAddAnggotaModal() {
+      // Cek role
+      if (currentRole === 'pembina') {
+        showToast('Akses ditolak! Hanya Admin yang dapat menambah anggota.');
+        return;
+      }
+      
       document.getElementById('modal-anggota-title').textContent = 'Tambah Anggota';
       document.getElementById('form-anggota').reset();
       document.getElementById('anggota-id').value = '';
@@ -3511,6 +4079,12 @@
     }
 
     function openAddEkstraModal() {
+      // Cek role
+      if (currentRole === 'pembina') {
+        showToast('Akses ditolak! Hanya Admin yang dapat menambah ekstrakurikuler.');
+        return;
+      }
+      
       document.getElementById('modal-ekstra-title').textContent = 'Tambah Ekstrakurikuler';
       document.getElementById('form-ekstra').reset();
       document.getElementById('ekstra-id').value = '';
@@ -3572,6 +4146,12 @@
     }
 
     function editAnggota(data) {
+      // Cek role
+      if (currentRole === 'pembina') {
+        showToast('Akses ditolak! Hanya Admin yang dapat mengedit anggota.');
+        return;
+      }
+      
       document.getElementById('modal-anggota-title').textContent = 'Edit Anggota';
       document.getElementById('anggota-id').value = data.id;
       document.getElementById('anggota-nama').value = data.nama;
@@ -3582,6 +4162,12 @@
     }
 
     function editEkstra(data) {
+      // Cek role
+      if (currentRole === 'pembina') {
+        showToast('Akses ditolak! Hanya Admin yang dapat mengedit ekstrakurikuler.');
+        return;
+      }
+      
       document.getElementById('modal-ekstra-title').textContent = 'Edit Ekstrakurikuler';
       document.getElementById('ekstra-id').value = data.id;
       document.getElementById('ekstra-nama').value = data.nama;
@@ -3671,8 +4257,15 @@
       btn.disabled = true;
       btn.textContent = 'Menyimpan...';
 
-      const nilaiInputs = document.querySelectorAll('.penilaian-nilai-input');
-      const catatanInputs = document.querySelectorAll('.penilaian-catatan-input');
+      const nilaiInputs = document.querySelectorAll('.penilaian-nilai-input:not([disabled])');
+      const catatanInputs = document.querySelectorAll('.penilaian-catatan-input:not([disabled])');
+
+      if (nilaiInputs.length === 0) {
+        showToast('Tidak ada penilaian baru yang perlu disimpan!');
+        btn.disabled = false;
+        btn.textContent = 'Simpan Semua Penilaian';
+        return;
+      }
 
       let successCount = 0;
       let failCount = 0;
@@ -3699,9 +4292,11 @@
 
       showToast(`Selesai! Berhasil: ${successCount}, Gagal: ${failCount}`);
       
-      document.getElementById('penilaian-select-ekstra').value = '';
-      document.getElementById('penilaian-klasikal-container').classList.add('hidden');
-      document.getElementById('penilaian-no-ekstra').classList.remove('hidden');
+      // Refresh data
+      await fetchAllData();
+      
+      // Refresh form
+      document.getElementById('penilaian-select-ekstra').dispatchEvent(new Event('change'));
     });
 
     document.getElementById('form-absensi-klasikal').addEventListener('submit', async function(e) {
@@ -3712,7 +4307,14 @@
       btn.textContent = 'Menyimpan...';
 
       const tanggal = document.getElementById('absensi-tanggal-klasikal').value;
-      const statusInputs = document.querySelectorAll('.absensi-status-input');
+      const statusInputs = document.querySelectorAll('.absensi-status-input:not([disabled])');
+
+      if (statusInputs.length === 0) {
+        showToast('Tidak ada absensi baru yang perlu disimpan!');
+        btn.disabled = false;
+        btn.textContent = '💾 Simpan Semua Absensi';
+        return;
+      }
 
       let successCount = 0;
       let failCount = 0;
@@ -3738,9 +4340,11 @@
 
       showToast(`Selesai! Berhasil: ${successCount}, Gagal: ${failCount}`);
       
-      document.getElementById('absensi-select-ekstra').value = '';
-      document.getElementById('absensi-klasikal-container').classList.add('hidden');
-      document.getElementById('absensi-no-ekstra').classList.remove('hidden');
+      // Refresh data
+      await fetchAllData();
+      
+      // Refresh form
+      document.getElementById('absensi-select-ekstra').dispatchEvent(new Event('change'));
     });
 
     document.getElementById('form-anggota').addEventListener('submit', async function(e) {
@@ -4017,6 +4621,9 @@
       document.getElementById('search-absensi-dari').value = today;
       document.getElementById('search-absensi-sampai').value = today;
       
+      // Initialize role system
+      setRole('admin');
+      
       // Event listener untuk search anggota
       const searchAnggota = document.getElementById('search-anggota');
       if (searchAnggota) {
@@ -4052,6 +4659,9 @@
       
       // Load data from Google Sheets
       await fetchAllData();
+      
+      // Update UI untuk role
+      updateUIForRole();
     })();
   </script>
   <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a8f8dca80d2fe14',t:'MTc2NDg5NTg3NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
